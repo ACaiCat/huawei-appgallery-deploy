@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { assertRetOk, type Ret } from './ret.js'
 
 export const GET_UPLOAD_URL_API =
   'https://connect-api.cloud.huawei.com/api/publish/v2/upload-url/for-obs'
@@ -18,10 +19,7 @@ export interface UploadUrlInfo {
 }
 
 export interface GetUploadUrlResponse {
-  ret: {
-    code: number
-    msg: string
-  }
+  ret: Ret
   urlInfo: UploadUrlInfo
 }
 
@@ -52,6 +50,8 @@ export async function getUploadUrl(
     headers,
     params
   })
+
+  assertRetOk(data.ret)
 
   return data
 }

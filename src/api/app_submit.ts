@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { assertRetOk, type Ret } from './ret.js'
 
 export const APP_SUBMIT_API =
   'https://connect-api.cloud.huawei.com/api/publish/v3/app-submit'
@@ -17,10 +18,7 @@ export interface SubmitAppParams {
 }
 
 export interface SubmitAppResponse {
-  ret: {
-    code: number
-    msg: string
-  }
+  ret: Ret
 }
 
 /**
@@ -43,6 +41,8 @@ export async function submitApp(
     headers,
     params: { appId }
   })
+
+  assertRetOk(data.ret)
 
   return data
 }

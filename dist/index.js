@@ -51912,6 +51912,16 @@ const {
   create,
 } = axios;
 
+/**
+ * 校验 AppGallery Connect 接口返回的 ret 结果。
+ * msg 不为 "success" 时抛出异常，并携带 code 和 msg 信息。
+ */
+function assertRetOk(ret) {
+    if (ret.msg !== 'success') {
+        throw new Error(`AppGallery Connect 接口调用失败: code=${ret.code}, msg=${ret.msg}`);
+    }
+}
+
 const GET_UPLOAD_URL_API = 'https://connect-api.cloud.huawei.com/api/publish/v2/upload-url/for-obs';
 /**
  * 获取文件上传地址（图片、视频、APP、PDF 等）。
@@ -51926,6 +51936,7 @@ async function getUploadUrl(token, params, clientId) {
         headers,
         params
     });
+    assertRetOk(data.ret);
     return data;
 }
 
@@ -51971,6 +51982,7 @@ async function submitApp(token, appId, params, clientId) {
         headers,
         params: { appId }
     });
+    assertRetOk(data.ret);
     return data;
 }
 
