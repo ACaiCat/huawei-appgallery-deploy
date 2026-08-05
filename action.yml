@@ -1,29 +1,31 @@
-name: "Deploy to Huawei App Gallery"
-description: "Uploads and releases apps to Huawei App Gallery."
-author: "ACaiCat"
+name: 'Deploy to Huawei App Gallery'
+description: 'Uploads and releases apps to Huawei App Gallery.'
+author: 'ACaiCat'
 branding:
-  icon: "upload"
-  color: "red"
+  icon: 'upload'
+  color: 'red'
 inputs:
   credentials:
-    description: "Huawei Service Account credentials (JSON)"
+    description: 'Huawei Service Account credentials (JSON)'
     required: true
   app-id:
-    description: "App Id"
+    description: 'App Id'
     required: true
   file-path:
-    description: "file path to upload"
+    description: 'file path to upload'
     required: true
   file-name:
-    description: "desired file name to upload"
+    description: 'desired file name to upload'
     required: true
     default: 'app-release'
   chinese-mainland-flag:
-    deprecation: "this parameter is required when the developer's registered region is not Mainland China."
+    deprecation:
+      "this parameter is required when the developer's registered region is not
+      Mainland China."
     required: false
     default: 0
   submit:
-    description: "whether or not to submit automatically"
+    description: 'whether or not to submit automatically'
     required: false
     default: false
 
