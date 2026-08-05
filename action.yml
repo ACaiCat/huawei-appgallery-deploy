@@ -1,5 +1,5 @@
-name: 'Deploy to Huawei App Gallery'
-description: 'Uploads and releases apps to Huawei App Gallery.'
+name: 'Deploy to Harmony App Gallery'
+description: 'Uploads and releases apps to Harmony App Gallery.'
 author: 'ACaiCat'
 branding:
   icon: 'upload'

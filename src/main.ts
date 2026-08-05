@@ -14,13 +14,13 @@ export async function run(): Promise<void> {
     const chineseMainlandFlag = core.getInput('chinese-mainland-flag')
     const submit = core.getBooleanInput('submit')
 
-    console.log('🍥 try login...')
+    console.log('🍥 Trying to login...')
     const token = await loginWithCredentials()
-    console.log('✅ login successful!')
+    console.log('✅ Login successful!')
     const file = fs.readFileSync(filePath)
     const sha256 = crypto.createHash('sha256').update(file).digest('hex')
 
-    console.log('🔗 getting upload url...')
+    console.log('🔗 Getting upload URL...')
     const getUploadUrlResp = await getUploadUrl(token, {
       appId,
       fileName,
@@ -29,18 +29,18 @@ export async function run(): Promise<void> {
       chineseMainlandFlag: parseInt(chineseMainlandFlag, 10)
     })
 
-    console.log('📦 uploading File...')
+    console.log('📦 Uploading file...')
     await uploadFile({
       urlInfo: getUploadUrlResp.urlInfo,
       content: file,
       fileName
     })
-    console.log('⤴️ upload successful!')
+    console.log('⤴️ Upload successful!')
 
     if (submit) {
-      console.log('👷 submitting App...')
+      console.log('👷 Submitting app...')
       await submitApp(token, appId, {})
-      console.log('🎉 submit successful!')
+      console.log('🎉 Submit successful!')
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
