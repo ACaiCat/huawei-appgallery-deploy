@@ -38,9 +38,9 @@ export async function run(): Promise<void> {
     console.log('⤴️ upload successful!')
 
     if (submit) {
-      console.log('👷 submiting App...')
+      console.log('👷 submitting App...')
       await submitApp(token, appId, {})
-      console.log('🎉 submiting successful!')
+      console.log('🎉 submitting successful!')
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)

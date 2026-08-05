@@ -17,7 +17,6 @@ inputs:
   file-name:
     description: 'desired file name to upload'
     required: true
-    default: 'app-release'
   chinese-mainland-flag:
     deprecation:
       "this parameter is required when the developer's registered region is not
