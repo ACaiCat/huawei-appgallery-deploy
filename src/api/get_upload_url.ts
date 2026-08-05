@@ -3,20 +3,18 @@ import axios from 'axios'
 export const GET_UPLOAD_URL_API =
   'https://connect-api.cloud.huawei.com/api/publish/v2/upload-url/for-obs'
 
-export interface ChunkUrlInfo {
-  chunkUrl: string
-  chunkNo: number
-  chunkSize: number
-}
-
 export interface UploadUrlInfo {
-  authCode: string
-  uploadUrl: string
-  requestMethod: string
-  /** 预签名上传请求头，上传文件时需原样透传（含 Authorization、x-amz-content-sha256、x-amz-date、Host、user-agent、Content-Type）。 */
-  headers: Record<string, string> | string
-  chunkSize: number
-  chunkList: ChunkUrlInfo[]
+  /** OBS 对象 ID，可用于后续校验上传结果。 */
+  objectId: string
+  /** 预签名上传地址。 */
+  url: string
+  /** 上传方法，通常为 PUT。 */
+  method: string
+  /**
+   * 预签名上传请求头，上传文件时需原样透传（含 Authorization、
+   * x-amz-content-sha256、x-amz-date、Host、user-agent、Content-Type）。
+   */
+  headers: Record<string, string>
 }
 
 export interface GetUploadUrlResponse {

@@ -51929,33 +51929,25 @@ async function getUploadUrl(token, params, clientId) {
     return data;
 }
 
-function normalizeHeaders(headers) {
-    if (typeof headers === 'string') {
-        // 文档中返回的 headers 为字符串，需要解析成键值对。
-        return JSON.parse(headers);
-    }
-    return headers;
-}
 /**
  * 将文件内容上传至 getUploadUrl 返回的上传地址。
  *
  * 按“上传文件”接口文档要求：
- * - 使用 HTTPS PUT（对应 getUploadUrl 返回的 requestMethod）；
- * - 请求头必须原样透传 getUploadUrl 返回的 headers 参数
- *   （Authorization、x-amz-content-sha256、x-amz-date、Host、user-agent、Content-Type）；
+ * - 使用 HTTPS PUT（getUploadUrl 返回的 urlInfo.method 固定为 PUT）；
+ * - 请求头必须原样透传 urlInfo.headers 参数（含 Authorization、
+ *   x-amz-content-sha256、x-amz-date、Host、user-agent、Content-Type）；
  * - Body 为二进制文件内容，Content-Type 为 application/octet-stream；
  * - 文件大小必须与调用 getUploadUrl 时填写的 contentLength 一致。
  *
  * HTTP 状态码为 200 时表示上传成功。
  */
 async function uploadFile({ urlInfo, content, fileName }) {
-    const method = urlInfo.requestMethod.toLowerCase();
-    const headers = normalizeHeaders(urlInfo.headers);
+    const method = urlInfo.method.toLowerCase();
     await axios.request({
         method,
-        url: urlInfo.uploadUrl,
+        url: urlInfo.url,
         headers: {
-            ...headers,
+            ...urlInfo.headers,
             'Content-Length': content.length
         },
         data: content,
@@ -52012,7 +52004,7 @@ async function run() {
         if (submit) {
             console.log('👷 submitting App...');
             await submitApp(token, appId, {});
-            console.log('🎉 submitting successful!');
+            console.log('🎉 submit successful!');
         }
     }
     catch (error) {
