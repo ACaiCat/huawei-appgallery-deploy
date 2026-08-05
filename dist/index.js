@@ -51915,7 +51915,7 @@ const {
  */
 function assertRetOk(ret) {
     if (ret.msg !== 'success') {
-        throw new Error(`AppGallery Connect 接口调用失败: code=${ret.code}, msg=${ret.msg}`);
+        throw new Error(`🔥 AppGallery Connect API failed: code=${ret.code}, msg=${ret.msg}`);
     }
 }
 
@@ -51983,6 +51983,25 @@ async function submitApp(token, appId, params, clientId) {
     return data;
 }
 
+const APP_PACKAGE_INFO_API = 'https://connect-api.cloud.huawei.com/api/publish/v3/app-package-info';
+/**
+ * APP 软件包上传完成后，刷新 HarmonyOS 应用/元服务的软件包信息。
+ *
+ * 该接口支持解析软件包中的构建版本号（buildVersion），用于区分同一主版本下的不同测试子版本。
+ */
+async function updateAppPackageInfo(token, params, clientId) {
+    const headers = {
+        Authorization: `Bearer ${token}`
+    };
+    const { fileName, objectId, appId, releaseType, releasePhase } = params;
+    const { data } = await axios.put(APP_PACKAGE_INFO_API, { fileName, objectId }, {
+        headers,
+        params: { appId, releaseType, releasePhase }
+    });
+    assertRetOk(data.ret);
+    return data;
+}
+
 async function run() {
     try {
         const appId = getInput('app-id');
@@ -52010,11 +52029,17 @@ async function run() {
             fileName
         });
         console.log('⤴️ Upload successful!');
+        console.log('📦 Updating app package info...');
+        await updateAppPackageInfo(token, {
+            appId: appId,
+            fileName: fileName,
+            objectId: getUploadUrlResp.urlInfo.objectId
+        });
         if (submit) {
             console.log('👷 Submitting app...');
             await submitApp(token, appId, {});
-            console.log('🎉 Submit successful!');
         }
+        console.log('🎉 Deploy successful!');
     }
     catch (error) {
         if (error instanceof Error)

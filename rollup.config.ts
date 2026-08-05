@@ -16,9 +16,19 @@ const config = {
   plugins: [
     typescript(),
     nodeResolve({ preferBuiltins: true }),
-    commonjs(),
+    commonjs({ transformMixedEsModules: true }),
     json()
-  ]
+  ],
+  onwarn(warning, warn) {
+    // 静默 @actions/core 自身 CJS 代码带来的无害警告
+    if (
+      warning.code === 'THIS_IS_UNDEFINED' ||
+      warning.code === 'CIRCULAR_DEPENDENCY'
+    ) {
+      return
+    }
+    warn(warning)
+  }
 }
 
 export default config

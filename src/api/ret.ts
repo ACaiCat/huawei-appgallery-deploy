@@ -10,7 +10,7 @@ export interface Ret {
 export function assertRetOk(ret: Ret): void {
   if (ret.msg !== 'success') {
     throw new Error(
-      `AppGallery Connect 接口调用失败: code=${ret.code}, msg=${ret.msg}`
+      `🔥 AppGallery Connect API failed: code=${ret.code}, msg=${ret.msg}`
     )
   }
 }

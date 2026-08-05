@@ -5,6 +5,7 @@ import { loginWithCredentials } from './api/login.js'
 import { getUploadUrl } from './api/get_upload_url.js'
 import { uploadFile } from './api/upload_file.js'
 import { submitApp } from './api/app_submit.js'
+import { updateAppPackageInfo } from './api/update_app_package_info.js'
 
 export async function run(): Promise<void> {
   try {
@@ -37,11 +38,19 @@ export async function run(): Promise<void> {
     })
     console.log('⤴️ Upload successful!')
 
+    console.log('📦 Updating app package info...')
+    await updateAppPackageInfo(token, {
+      appId: appId,
+      fileName: fileName,
+      objectId: getUploadUrlResp.urlInfo.objectId
+    })
+
     if (submit) {
       console.log('👷 Submitting app...')
       await submitApp(token, appId, {})
-      console.log('🎉 Submit successful!')
     }
+
+    console.log('🎉 Deploy successful!')
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
