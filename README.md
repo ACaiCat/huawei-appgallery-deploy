@@ -22,7 +22,7 @@ jobs:
         with:
           credentials: ${{ secrets.HUAWEI_CREDENTIALS }}
           app-id: your-app-id
-          file-path: ./app-release.hap
+          file-path: ./app-release.app
           file-name: app-release
           chinese-mainland-flag: 0
           submit: false
@@ -34,7 +34,7 @@ jobs:
 | ----------------------- | -------- | ------------------------------------------------------------------------------------ |
 | `credentials`           | Yes      | Huawei Service Account credentials as JSON (the `.json` file contents).              |
 | `app-id`                | Yes      | Your AppGallery Connect app ID.                                                      |
-| `file-path`             | Yes      | Path to the app package (`.hap`) to upload.                                          |
+| `file-path`             | Yes      | Path to the app package (`.app`) to upload.                                          |
 | `file-name`             | Yes      | Desired file name used for the upload (default: `app-release`).                      |
 | `chinese-mainland-flag` | No       | Set to `1` if your developer account is registered in Mainland China (default: `0`). |
 | `submit`                | No       | Whether to submit the app for review after upload (default: `false`).                |
