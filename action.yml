@@ -1,23 +1,31 @@
-name: The name of your action here
-description: Provide a description here
-author: Your name or organization here
-
-# Add your action's branding here. This will appear on the GitHub Marketplace.
+name: "Deploy to Huawei App Gallery"
+description: "Uploads and releases apps to Huawei App Gallery."
+author: "ACaiCat"
 branding:
-  icon: heart
-  color: red
-
-# Define your inputs here.
+  icon: "upload"
+  color: "red"
 inputs:
-  milliseconds:
-    description: Your input description here
+  credentials:
+    description: "Huawei Service Account credentials (JSON)"
     required: true
-    default: '1000'
-
-# Define your outputs here.
-outputs:
-  time:
-    description: Your output description here
+  app-id:
+    description: "App Id"
+    required: true
+  file-path:
+    description: "file path to upload"
+    required: true
+  file-name:
+    description: "desired file name to upload"
+    required: true
+    default: 'app-release'
+  chinese-mainland-flag:
+    deprecation: "this parameter is required when the developer's registered region is not Mainland China."
+    required: false
+    default: 0
+  submit:
+    description: "whether or not to submit automatically"
+    required: false
+    default: false
 
 runs:
   using: node24
