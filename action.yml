@@ -27,6 +27,23 @@ inputs:
     description: 'whether or not to submit automatically'
     required: false
     default: false
+  test-submit:
+    description: 'whether or not to create and submit a test version'
+    required: false
+    default: false
+  test-type:
+    description:
+      'test type: 3 for HarmonyOS invite test, 4 for HarmonyOS public test'
+    required: false
+    default: '3'
+  test-desc:
+    description: 'test version description, max 50 characters'
+    required: false
+    default: ''
+  onshelf-self-detect:
+    description: 'whether to run on-shelf self check: 0 no, 1 yes'
+    required: false
+    default: '0'
 
 runs:
   using: node24

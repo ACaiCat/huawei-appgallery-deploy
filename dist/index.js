@@ -52002,6 +52002,40 @@ async function updateAppPackageInfo(token, params, clientId) {
     return data;
 }
 
+const CREATE_TEST_VERSION_API = 'https://connect-api.cloud.huawei.com/api/publish/v2/test/app/version';
+/**
+ * 创建 HarmonyOS 应用/元服务的测试版本。
+ */
+async function createTestVersion(token, params, clientId) {
+    const headers = {
+        Authorization: `Bearer ${token}`
+    };
+    const { appId, ...body } = params;
+    const { data } = await axios.post(CREATE_TEST_VERSION_API, body, {
+        headers,
+        params: { appId }
+    });
+    assertRetOk(data.ret);
+    return data;
+}
+
+const SUBMIT_TEST_VERSION_API = 'https://connect-api.cloud.huawei.com/api/publish/v2/test/app/version/submit';
+/**
+ * 提交测试版本审核。
+ */
+async function submitTestVersion(token, params, clientId) {
+    const headers = {
+        Authorization: `Bearer ${token}`
+    };
+    const { appId, versionId } = params;
+    const { data } = await axios.post(SUBMIT_TEST_VERSION_API, { versionId }, {
+        headers,
+        params: { appId }
+    });
+    assertRetOk(data.ret);
+    return data;
+}
+
 async function run() {
     try {
         const appId = getInput('app-id');
@@ -52009,6 +52043,10 @@ async function run() {
         const filePath = getInput('file-path');
         const chineseMainlandFlag = getInput('chinese-mainland-flag');
         const submit = getBooleanInput('submit');
+        const testSubmit = getBooleanInput('test-submit');
+        const testType = parseInt(getInput('test-type'), 10);
+        const testDesc = getInput('test-desc');
+        const onshelfSelfDetect = getInput('onshelf-self-detect');
         console.log('🍥 Trying to login...');
         const token = await loginWithCredentials();
         console.log('✅ Login successful!');
@@ -52035,6 +52073,20 @@ async function run() {
             fileName: fileName,
             objectId: getUploadUrlResp.urlInfo.objectId
         });
+        if (testSubmit) {
+            console.log('🧪 Creating test version...');
+            const testVersionResp = await createTestVersion(token, {
+                appId,
+                testType,
+                testDesc,
+                onshelfSelfDetect: parseInt(onshelfSelfDetect, 10)
+            });
+            const versionId = testVersionResp.versionId;
+            if (!versionId)
+                throw new Error('Failed to get test version ID');
+            console.log('🧪 Submitting test version...');
+            await submitTestVersion(token, { appId, versionId });
+        }
         if (submit) {
             console.log('👷 Submitting app...');
             await submitApp(token, appId, {});

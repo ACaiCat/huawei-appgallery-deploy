@@ -1,9 +1,8 @@
 # Deploy to Huawei App Gallery
 
-A GitHub Action that uploads and optionally submits HarmonyOS apps to Huawei
-AppGallery Connect.
+一个用于将 HarmonyOS 应用上传并可选提交到华为 AppGallery Connect 的 GitHub Action。
 
-## Usage
+## 用法
 
 ```yaml
 name: Deploy
@@ -28,25 +27,31 @@ jobs:
           submit: false
 ```
 
-## Inputs
+## 输入参数
 
-| Name                    | Required | Description                                                                          |
-| ----------------------- | -------- | ------------------------------------------------------------------------------------ |
-| `credentials`           | Yes      | Huawei Service Account credentials as JSON (the `.json` file contents).              |
-| `app-id`                | Yes      | Your AppGallery Connect app ID.                                                      |
-| `file-path`             | Yes      | Path to the app package (`.app`) to upload.                                          |
-| `file-name`             | Yes      | Desired file name used for the upload (default: `app-release`).                      |
-| `chinese-mainland-flag` | No       | Set to `1` if your developer account is registered in Mainland China (default: `0`). |
-| `submit`                | No       | Whether to submit the app for review after upload (default: `false`).                |
+| 名称                    | 必填 | 说明                                                                                       |
+| ----------------------- | ---- | ------------------------------------------------------------------------------------------ |
+| `credentials`           | 是   | 华为 Service Account 凭据（`.json` 文件内容）。                                            |
+| `app-id`                | 是   | 你的 AppGallery Connect 应用 ID。                                                          |
+| `file-path`             | 是   | 待上传的应用包（`.app`）路径。                                                             |
+| `file-name`             | 是   | 上传使用的文件名称（默认：`app-release`）。                                                |
+| `chinese-mainland-flag` | 否   | 如果开发者账号注册地为中国大陆则设为 `1`（默认：`0`）。                                    |
+| `submit`                | 否   | 上传后是否将应用提交审核（默认：`false`）。                                                |
+| `test-submit`           | 否   | 是否创建并提交测试版本（默认：`false`）。                                                  |
+| `test-type`             | 否   | 测试类型：`3` 为 HarmonyOS 邀请测试，`4` 为 HarmonyOS 公开测试（默认：`3`）。              |
+| `test-desc`             | 否   | 测试版本描述，最长 50 个字符（默认：空）。                                                 |
+| `onshelf-self-detect`   | 否   | 是否进行上架自检：`0` 否，`1` 是（默认：`0`）。                                            |
 
-## Workflow
+## 工作流程
 
-1. Sign in using the service account credentials.
-2. Request an upload URL for the package.
-3. Upload the package to Huawei's object storage.
-4. Optionally submit the app for review (add ~2 minutes before submitting).
+1. 使用 Service Account 凭据登录。
+2. 获取软件包的上传地址。
+3. 将软件包上传到华为对象存储。
+4. 更新应用软件包信息（解析软件包中的构建版本号）。
+5. 可选：创建并提交测试版本（邀请测试 / 公开测试）。
+6. 可选：将应用提交审核（提交前约需等待 2 分钟）。
 
-## Setting up credentials
+## 配置凭据
 
-Create a service account in AppGallery Connect, download the credential `.json`
-file, and store its contents in a repository secret, e.g. `HUAWEI_CREDENTIALS`.
+在 AppGallery Connect 中创建 Service Account，下载凭据 `.json` 文件，
+并将其内容存入仓库密钥，例如 `HUAWEI_CREDENTIALS`。
