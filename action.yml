@@ -40,10 +40,32 @@ inputs:
     description: 'test version description, max 50 characters'
     required: false
     default: ''
+  version-desc:
+    description: 'updated test version description, max 50 characters'
+    required: false
+    default: ''
   onshelf-self-detect:
     description: 'whether to run on-shelf self check: 0 no, 1 yes'
     required: false
     default: '0'
+  test-group-ids:
+    description: 'comma-separated test group IDs to add to the test task'
+    required: false
+    default: ''
+  need-notify:
+    description: 'whether to send a test notification: 0 no, 1 yes'
+    required: false
+    default: '1'
+  test-start-time:
+    description: 'test version start time in milliseconds; defaults to now'
+    required: false
+    default: ''
+  test-end-time:
+    description:
+      'test version end time in milliseconds; defaults to start time plus 90
+      days'
+    required: false
+    default: ''
 
 runs:
   using: node24

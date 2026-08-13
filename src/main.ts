@@ -7,6 +7,7 @@ import { uploadFile } from './api/upload_file.js'
 import { submitApp } from './api/app_submit.js'
 import { updateAppPackageInfo } from './api/update_app_package_info.js'
 import { createTestVersion } from './api/create_test_version.js'
+import { updateTestVersion } from './api/update_test_version.js'
 import { submitTestVersion } from './api/submit_test_version.js'
 
 export async function run(): Promise<void> {
@@ -19,7 +20,12 @@ export async function run(): Promise<void> {
     const testSubmit = core.getBooleanInput('test-submit')
     const testType = parseInt(core.getInput('test-type'), 10)
     const testDesc = core.getInput('test-desc')
+    const versionDesc = core.getInput('version-desc')
     const onshelfSelfDetect = core.getInput('onshelf-self-detect')
+    const testGroupIds = core.getInput('test-group-ids')
+    const needNotify = parseInt(core.getInput('need-notify'), 10)
+    const startTimeInput = core.getInput('test-start-time')
+    const endTimeInput = core.getInput('test-end-time')
 
     console.log('🍥 Trying to login...')
     const token = await loginWithCredentials()
@@ -45,7 +51,7 @@ export async function run(): Promise<void> {
     console.log('⤴️ Upload successful!')
 
     console.log('📦 Updating app package info...')
-    await updateAppPackageInfo(token, {
+    const packageInfoResp = await updateAppPackageInfo(token, {
       appId: appId,
       fileName: fileName,
       objectId: getUploadUrlResp.urlInfo.objectId
@@ -61,6 +67,32 @@ export async function run(): Promise<void> {
       })
       const versionId = testVersionResp.versionId
       if (!versionId) throw new Error('Failed to get test version ID')
+
+      console.log('📝 Updating test version...')
+      const groupInfos = testGroupIds
+        .split(',')
+        .map((id) => id.trim())
+        .filter((id) => id !== '')
+        .map((groupId) => ({ groupId }))
+      const now = Date.now()
+      const startTime = startTimeInput ? parseInt(startTimeInput, 10) : now
+      const endTime = endTimeInput
+        ? parseInt(endTimeInput, 10)
+        : startTime + 90 * 24 * 60 * 60 * 1000
+      await updateTestVersion(token, {
+        appId,
+        versionId,
+        pkgId: packageInfoResp.packageId,
+        openTestInfo: {
+          startTime,
+          endTime,
+          testDesc: versionDesc,
+          testTaskInfo: {
+            groupInfos,
+            needNotify
+          }
+        }
+      })
 
       console.log('🧪 Submitting test version...')
       await submitTestVersion(token, { appId, versionId })

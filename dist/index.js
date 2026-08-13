@@ -52019,6 +52019,26 @@ async function createTestVersion(token, params, clientId) {
     return data;
 }
 
+const UPDATE_TEST_VERSION_API = 'https://connect-api.cloud.huawei.com/api/publish/v2/test/app/version';
+/**
+ * 更新已创建的测试版本。
+ *
+ * 在架的测试版本不允许调用此接口。如需修改生效版本或测试时间额度等信息，
+ * 请参考对应的专用接口；本实现仅支持更新 openTestInfo（测试描述与测试任务）。
+ */
+async function updateTestVersion(token, params, clientId) {
+    const headers = {
+        Authorization: `Bearer ${token}`
+    };
+    const { appId, ...body } = params;
+    const { data } = await axios.put(UPDATE_TEST_VERSION_API, body, {
+        headers,
+        params: { appId }
+    });
+    assertRetOk(data.ret);
+    return data;
+}
+
 const SUBMIT_TEST_VERSION_API = 'https://connect-api.cloud.huawei.com/api/publish/v2/test/app/version/submit';
 /**
  * 提交测试版本审核。
@@ -52046,7 +52066,12 @@ async function run() {
         const testSubmit = getBooleanInput('test-submit');
         const testType = parseInt(getInput('test-type'), 10);
         const testDesc = getInput('test-desc');
+        const versionDesc = getInput('version-desc');
         const onshelfSelfDetect = getInput('onshelf-self-detect');
+        const testGroupIds = getInput('test-group-ids');
+        const needNotify = parseInt(getInput('need-notify'), 10);
+        const startTimeInput = getInput('test-start-time');
+        const endTimeInput = getInput('test-end-time');
         console.log('🍥 Trying to login...');
         const token = await loginWithCredentials();
         console.log('✅ Login successful!');
@@ -52068,7 +52093,7 @@ async function run() {
         });
         console.log('⤴️ Upload successful!');
         console.log('📦 Updating app package info...');
-        await updateAppPackageInfo(token, {
+        const packageInfoResp = await updateAppPackageInfo(token, {
             appId: appId,
             fileName: fileName,
             objectId: getUploadUrlResp.urlInfo.objectId
@@ -52084,6 +52109,31 @@ async function run() {
             const versionId = testVersionResp.versionId;
             if (!versionId)
                 throw new Error('Failed to get test version ID');
+            console.log('📝 Updating test version...');
+            const groupInfos = testGroupIds
+                .split(',')
+                .map((id) => id.trim())
+                .filter((id) => id !== '')
+                .map((groupId) => ({ groupId }));
+            const now = Date.now();
+            const startTime = startTimeInput ? parseInt(startTimeInput, 10) : now;
+            const endTime = endTimeInput
+                ? parseInt(endTimeInput, 10)
+                : startTime + 90 * 24 * 60 * 60 * 1000;
+            await updateTestVersion(token, {
+                appId,
+                versionId,
+                pkgId: packageInfoResp.packageId,
+                openTestInfo: {
+                    startTime,
+                    endTime,
+                    testDesc: versionDesc,
+                    testTaskInfo: {
+                        groupInfos,
+                        needNotify
+                    }
+                }
+            });
             console.log('🧪 Submitting test version...');
             await submitTestVersion(token, { appId, versionId });
         }
