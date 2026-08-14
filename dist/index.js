@@ -52056,6 +52056,24 @@ async function submitTestVersion(token, params, clientId) {
     return data;
 }
 
+const QUERY_PACKAGE_STATUS_API = 'https://connect-api.cloud.huawei.com/api/publish/v3/package/compile/status';
+/**
+ * 查询 HarmonyOS 应用/元服务的软件包编译状态。
+ *
+ * 软件包 ID 可通过「更新应用软件包信息」接口返回的 packageId 获取。
+ */
+async function queryPackageStatus(token, params, clientId) {
+    const headers = {
+        Authorization: `Bearer ${token}`
+    };
+    const { data } = await axios.get(QUERY_PACKAGE_STATUS_API, {
+        headers,
+        params
+    });
+    assertRetOk(data.ret);
+    return data;
+}
+
 async function run() {
     try {
         const appId = getInput('app-id');
@@ -52099,6 +52117,11 @@ async function run() {
             objectId: getUploadUrlResp.urlInfo.objectId
         });
         if (testSubmit) {
+            const packageId = packageInfoResp.packageId;
+            if (!packageId)
+                throw new Error('Failed to get package ID');
+            console.log('⏳ Waiting for package to compile...');
+            await waitForPackageReady(token, appId, packageId);
             console.log('🧪 Creating test version...');
             const testVersionResp = await createTestVersion(token, {
                 appId,
@@ -52110,11 +52133,9 @@ async function run() {
             if (!versionId)
                 throw new Error('Failed to get test version ID');
             console.log('📝 Updating test version...');
-            const groupInfos = testGroupIds
-                .split(',')
-                .map((id) => id.trim())
-                .filter((id) => id !== '')
-                .map((groupId) => ({ groupId }));
+            const groupInfos = parseGroupIds(testGroupIds).map((groupId) => ({
+                groupId
+            }));
             const now = Date.now();
             const startTime = startTimeInput ? parseInt(startTimeInput, 10) : now;
             const endTime = endTimeInput
@@ -52123,7 +52144,7 @@ async function run() {
             await updateTestVersion(token, {
                 appId,
                 versionId,
-                pkgId: packageInfoResp.packageId,
+                pkgId: packageId,
                 openTestInfo: {
                     startTime,
                     endTime,
@@ -52147,6 +52168,62 @@ async function run() {
         if (error instanceof Error)
             setFailed(error.message);
     }
+}
+/**
+ * 解析测试群组 ID 列表输入，支持两种格式：
+ * - 逗号分隔字符串，如 "id1,id2"
+ * - JSON 数组字符串，如 '["id1","id2"]'
+ */
+function parseGroupIds(input) {
+    const trimmed = input.trim();
+    if (trimmed === '')
+        return [];
+    if (trimmed.startsWith('[')) {
+        try {
+            const parsed = JSON.parse(trimmed);
+            if (Array.isArray(parsed)) {
+                return parsed.filter((id) => typeof id === 'string' && id.trim() !== '');
+            }
+        }
+        catch {
+            // 非合法 JSON，回退到逗号分隔解析
+        }
+    }
+    return trimmed
+        .split(',')
+        .map((id) => id.trim())
+        .filter((id) => id !== '');
+}
+const PACKAGE_POLL_INTERVAL_MS = 30 * 1000;
+const PACKAGE_POLL_TIMEOUT_MS = 30 * 60 * 1000;
+/**
+ * 轮询查询软件包编译状态，直到编译完成（successStatus 为 0）或失败（为 2）。
+ * 华为文档提示软件包采用异步解析方式，传包后约需等待 2 分钟。
+ */
+async function waitForPackageReady(token, appId, pkgId) {
+    const deadline = Date.now() + PACKAGE_POLL_TIMEOUT_MS;
+    while (Date.now() < deadline) {
+        const resp = await queryPackageStatus(token, { appId, pkgIds: pkgId });
+        const state = resp.pkgStateList?.find((s) => s.pkgId === pkgId);
+        if (!state) {
+            console.log('⏳ Package status not found yet, retrying...');
+        }
+        else if (state.successStatus === 0) {
+            console.log('✅ Package compiled successfully');
+            return;
+        }
+        else if (state.successStatus === 2) {
+            throw new Error(`Package compilation failed: pkgId=${pkgId}`);
+        }
+        else {
+            console.log(`⏳ Package still parsing (status ${state.successStatus})...`);
+        }
+        await sleep(PACKAGE_POLL_INTERVAL_MS);
+    }
+    throw new Error(`Timed out waiting for package to compile: pkgId=${pkgId}`);
+}
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 run();

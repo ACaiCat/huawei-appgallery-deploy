@@ -1,7 +1,7 @@
 {
   "name": "huawei-appgallery-deploy",
   "description": "Upload your Harmony app to App Gllery !!!",
-  "version": "1.4.0",
+  "version": "1.6.0",
   "author": "ACaiCat",
   "type": "module",
   "private": true,
