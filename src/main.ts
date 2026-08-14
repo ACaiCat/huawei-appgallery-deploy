@@ -94,7 +94,8 @@ export async function run(): Promise<void> {
           testDesc: versionDesc,
           testTaskInfo: {
             groupInfos,
-            needNotify
+            needNotify,
+            displayArea: 1
           }
         }
       })

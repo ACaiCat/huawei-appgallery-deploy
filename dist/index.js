@@ -52151,7 +52151,8 @@ async function run() {
                     testDesc: versionDesc,
                     testTaskInfo: {
                         groupInfos,
-                        needNotify
+                        needNotify,
+                        displayArea: 1
                     }
                 }
             });

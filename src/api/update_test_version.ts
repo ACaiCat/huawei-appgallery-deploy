@@ -20,6 +20,8 @@ export interface TestTaskInfo {
   publicTestInstallLimit?: number
   /** 是否向用户发送测试通知，0 不需要，1 需要，默认 1。 */
   needNotify?: number
+  /** 展示区域。取值范围：1：AppGallery客户端测试专区 */
+  displayArea?: number
 }
 
 export interface OpenTestInfo {
