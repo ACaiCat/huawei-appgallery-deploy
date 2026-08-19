@@ -35,9 +35,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^3.0.0",
+    "@actions/core": "^3.0.1",
     "axios": "^1.19.0",
-    "jose": "^6.2.8"
+    "jose": "^6.2.9"
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.2",
